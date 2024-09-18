@@ -33,8 +33,8 @@ app.post("/signup",async function(req,res){
     const password=req.body.password;
     const name=req.body.name;
     const requiredbody=z.object({
-        email:z.string().min(3).max(100).email(),
-        passowrd:z.string().min(8).max(15),
+        email:z.string().regex("/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/").min(3).max(100).email(),
+        passowrd:z.string().min(8).max(15).regex(),
         name:z.string().min(3).max(20)
     })
 
