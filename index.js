@@ -8,8 +8,9 @@ const app=express()
 app.use(express.json())
 
 
+
 const mongoose=require("mongoose")
-const connectionString = 'mongodb+srv://admin:Shreya%402004@cluster0.dnrt8.mongodb.net/todo-app-database'; // Replace with your MongoDB URI
+const connectionString = process.env.MONGO_URI; // Replace with your MongoDB URI
 const options = {
   connectTimeoutMS: 30000, // 30 seconds
 };
