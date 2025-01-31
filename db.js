@@ -17,8 +17,9 @@ const Todo=new Schema({
     done:Boolean
 })
 
+//it tells konse collection mai data dalna hai
 const UserModel= mongoose.model("users",User); 
-//this model has the collection name as "users" and based on User Schema
+//this model has the collection name as "users" and based on User Schema/model
 const TodoModel=mongoose.model("todos",Todo);
 
 module.exports={

@@ -1,18 +1,14 @@
 const {UserModel,TodoModel} = require("./db")
+
 require('dotenv').config();
 const bcrypt=require("bcrypt")
 const{auth,jwt,JWT_SECRET}=require("./auth")
-console.log(JWT_SECRET);
+// console.log(JWT_SECRET);
 
 const express= require("express")
-const {z}=require("zod")
-
-
-
 const app=express()
 app.use(express.json())
-
-
+const {z}=require("zod")
 
 const mongoose=require("mongoose")
 const connectionString = process.env.connectionString; // Replace with your MongoDB URI
@@ -20,6 +16,8 @@ const options = {
   connectTimeoutMS: 30000, // 30 seconds
 };
 
+// mongoose.connect("mongodb+srv://admin:Shreya%402004@cluster0.dnrt8.mongodb.net/todo-app-database")
+//the name of the db is added at the end of the connection string 
 mongoose.connect(connectionString, options)
   .then(() => {
     console.log('Connected to MongoDB');
@@ -28,16 +26,11 @@ mongoose.connect(connectionString, options)
     console.error('Error connecting to MongoDB:', err);
   });
 
-// mongoose.connect("mongodb+srv://admin:Shreya%402004@cluster0.dnrt8.mongodb.net/todo-app-database")
-//the name of the db is added at the end of the connection string 
-
-
-
-
-app.post("/signup",async function(req,res){
+app.post("/signup",async function(req,res){ //made this an async function
     const email=req.body.email;
     const password=req.body.password;
     const name=req.body.name;
+    //step 1 is defining the schema for zod
     const requiredbody=z.object(
         {
         email:z.string().min(5,{message:"must have atleast 5 characters"}).max(100).email(),
@@ -46,6 +39,7 @@ app.post("/signup",async function(req,res){
         name:z.string().min(3).max(20)
     })
 
+    //step 2 is parsing the dat for zod
     const pasrsedDataWithSuccess=requiredbody.safeParse(req.body); //req.body is the input body 
     if(!pasrsedDataWithSuccess.success){
         res.json({
@@ -56,7 +50,7 @@ app.post("/signup",async function(req,res){
     }
     const hashedPassword=await bcrypt.hash(password,5); 
     //its doing smth expensive that is why have to await it 
-    //5 is the number of rounds that u eant to hash the password , the hgiher the number the number the harder it is to brute force it and more difficult to computationally run so ensure to have a intermediate number 
+    //5 is the number of rounds that u want to hash the password , the hgiher the number the number the harder it is to brute force it and more difficult to computationally run so ensure to have a intermediate number 
 
     //if i do not await here and disconnect the mongoose library , i will still get "you are signed up" even though this task was not completed yet ,isliye ye task complete hue bina age nhi bdhna chahiye
     await UserModel.create({ 
@@ -70,7 +64,6 @@ app.post("/signup",async function(req,res){
     })
 
 })
-
 
 //your backend might crash several times but thats the beauty of db that u dont have to sigin again to  restart  because your data is saved in  db 
 app.post("/signin", async function(req,res){
