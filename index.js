@@ -1,8 +1,13 @@
 const {UserModel,TodoModel} = require("./db")
+require('dotenv').config();
 const bcrypt=require("bcrypt")
-const{JWT_SECRET,auth}=require("./auth")
+const{auth,jwt,JWT_SECRET}=require("./auth")
+console.log(JWT_SECRET);
+
 const express= require("express")
 const {z}=require("zod")
+
+
 
 const app=express()
 app.use(express.json())
@@ -10,7 +15,7 @@ app.use(express.json())
 
 
 const mongoose=require("mongoose")
-const connectionString = process.env.MONGO_URI; // Replace with your MongoDB URI
+const connectionString = process.env.connectionString; // Replace with your MongoDB URI
 const options = {
   connectTimeoutMS: 30000, // 30 seconds
 };
@@ -33,9 +38,11 @@ app.post("/signup",async function(req,res){
     const email=req.body.email;
     const password=req.body.password;
     const name=req.body.name;
-    const requiredbody=z.object({
-        email:z.string().regex("/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/").min(3).max(100).email(),
-        passowrd:z.string().min(8).max(15).regex(),
+    const requiredbody=z.object(
+        {
+        email:z.string().min(5,{message:"must have atleast 5 characters"}).max(100).email(),
+        password:z.string().min(8).max(15),
+        // .regex("/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/"),
         name:z.string().min(3).max(20)
     })
 
@@ -54,7 +61,7 @@ app.post("/signup",async function(req,res){
     //if i do not await here and disconnect the mongoose library , i will still get "you are signed up" even though this task was not completed yet ,isliye ye task complete hue bina age nhi bdhna chahiye
     await UserModel.create({ 
         email:email,
-        password:password,
+        password:hashedPassword,
         name:name
     });
    
@@ -106,7 +113,7 @@ app.post("/todo",auth,async function(req,res,next){
     })
     res.json({
         message:"Todo created"
-    })    
+    })     
 } 
 )
 app.get("/todos",auth,async function(req,res,next){
